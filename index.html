@@ -182,19 +182,15 @@ function buildHeader() {
     heads.appendChild(th);
 
     const fh = document.createElement("th");
-    let el;
+    // Only categorical columns get a filter; the search box covers free text.
     if (c.type === "select") {
-      el = document.createElement("select");
+      const el = document.createElement("select");
       const opts = [...new Set(data.map(r => c.derive ? c.derive(r[c.key] || "") : r[c.key]).filter(Boolean))].sort();
       el.innerHTML = `<option value="">All</option>`;
       for (const o of opts) { const op = document.createElement("option"); op.value = op.textContent = o; el.appendChild(op); }
       el.onchange = () => { filters[c.key] = el.value; render(); };
-    } else {
-      el = document.createElement("input");
-      el.type = "search"; el.placeholder = "Filter";
-      el.oninput = () => { filters[c.key] = el.value; render(); };
+      fh.appendChild(el);
     }
-    fh.appendChild(el);
     frow.appendChild(fh);
   }
 }
