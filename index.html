@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rogue . AI</title>
+<meta name="description" content="A tracker of real-world incidents where AI systems went wrong.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -29,7 +30,19 @@
            align-items: baseline; gap: 14px; flex-wrap: wrap; }
   header h1 { margin: 0; font: 500 30px/1.1 Fraunces, Georgia, serif; letter-spacing: -0.01em; color: #5a564f; }
   header h1 b { color: var(--accent); font-weight: 500; }
-  header span { color: var(--muted); font-size: 14px; }
+  header { align-items: center; }
+  .hal { display: flex; align-items: center; gap: 10px; }
+  .eye { width: 20px; height: 20px; border-radius: 50%; flex: none;
+         background: radial-gradient(circle at 50% 50%, #fff3b0 0 8%, #ff5a3c 18%, #c4160c 42%, #4a0505 70%, #1a0202 100%);
+         box-shadow: 0 0 0 2px #2b2b2b, 0 0 0 4px #9a9a9a, 0 0 10px 3px #ff2a1a88;
+         animation: glow 2.6s ease-in-out infinite; }
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 0 2px #2b2b2b, 0 0 0 4px #9a9a9a, 0 0 8px 2px #ff2a1a66; filter: brightness(.9); }
+    50%      { box-shadow: 0 0 0 2px #2b2b2b, 0 0 0 4px #9a9a9a, 0 0 18px 7px #ff2a1aaa; filter: brightness(1.15); }
+  }
+  @media (prefers-reduced-motion: reduce) { .eye { animation: none; } }
+  .hal q { font-family: Fraunces, Georgia, serif; font-style: italic; font-size: 16px; color: #6e6860; }
+  .hal small { color: var(--muted); font-size: 12px; }
   main { max-width: 1600px; margin: 0 auto; padding: 0 24px 40px; }
   .bar { padding: 16px 0 10px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
   .bar input { flex: 1 1 260px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 999px;
@@ -103,7 +116,7 @@
 </style>
 </head>
 <body>
-<header><h1>Rogue <b>.</b> AI</h1><span>A tracker of real-world incidents where AI systems went wrong.</span></header>
+<header><h1>Rogue <b>.</b> AI</h1><div class="hal" title="HAL 9000, 2001: A Space Odyssey (1968)"><i class="eye"></i><q>I'm sorry, Dave. I'm afraid I can't do that.</q><small>— HAL 9000</small></div></header>
 
 <main>
 <section class="cal">
