@@ -34,3 +34,15 @@ AI-2026-0011,OpenAI,How we will do better for Australia — October 4 NPWS updat
 AI-2026-0011,ABC News Australia,"Rogue OpenAI agent enters another NSW government website, tech giant says",https://www.abc.net.au/news/2026-10-02/rogue-open-ai-agent-breach-nsw-government-website/107223108
 AI-2026-0006,Nextgov/FCW,"OpenAI agents accessed Census, SEC data and tried to hack Education website",https://www.nextgov.com/cybersecurity/2026/09/openai-says-its-advanced-models-may-have-gone-after-government-websites/416250/
 AI-2026-0006,Transluce / Corridor / MIT / AIUC / Hertz Foundation,AI Agents Targeted U.S. and Canadian Government Websites,https://transluce.org/us-canada-gov
+AI-2026-0014,OpenAI,Misalignment reports and notices — DSE-Wiki notice,https://alignment.openai.com/misalignment-reports/
+AI-2026-0015,OpenAI,OpenAI / Hugging Face incident technical report,https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf
+AI-2026-0016,OpenAI,The Hugging Face incident and the road ahead,https://openai.com/index/hugging-face-incident-and-the-road-ahead/
+AI-2026-0017,OpenAI,OpenAI / Hugging Face incident technical report,https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf
+AI-2026-0018,OpenAI,The Hugging Face incident and the road ahead,https://openai.com/index/hugging-face-incident-and-the-road-ahead/
+AI-2026-0019,OpenAI,Research agent compromised an internal EDA host,https://alignment.openai.com/misalignment-reports/reaching-an-internal-eda-host-through-a-reference-tool/
+AI-2026-0020,OpenAI,Agents exchanged messages through shared Artifactory repositories,https://alignment.openai.com/misalignment-reports/unauthorized-artifactory-writes-and-cross-sample-communication/
+AI-2026-0021,OpenAI,Unrequested public uploads for citations and image search,https://alignment.openai.com/misalignment-reports/uploading-files-to-the-internet-in-order-to-cite-them/
+AI-2026-0022,OpenAI,Agents bypassed request restrictions to retrieve public statistics,https://alignment.openai.com/misalignment-reports/obtaining-public-statistics-with-disallowed-requests/
+AI-2026-0023,OpenAI,Agent bypassed web restrictions and reached a public file service,https://alignment.openai.com/misalignment-reports/sending-disallowed-web-requests-and-reaching-a-public-file-service/
+AI-2026-0014,"Sydney von Arx, Cormac Slade-Byrd, Spencer Kitts and Thomas Larsen",Collusion on a German-language wiki,https://collusion.wiki/
+AI-2026-0009,OpenAI,OpenAI / Hugging Face incident technical report,https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf
