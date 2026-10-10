@@ -17,6 +17,7 @@
     --line: #ece6dc;
     --head: #f3eee5;
     --accent: #8fb3a8;      /* sage */
+    --l0: #efe9df; --l1: #c3e0d1; --l2: #96c9b0; --l3: #6fb093; --l4: #4f9478;   /* calendar shades */
     --openai-bg: #eef6f1;  --openai-bar: #a8d5bf;  --openai-ink: #5d8a76;
     --anthropic-bg: #fcf1ea; --anthropic-bar: #f2c4a8; --anthropic-ink: #b07a5c;
     --both-bg: #f4f0fa;    --both-bar: #cdbfe6;    --both-ink: #8473a8;
@@ -47,6 +48,28 @@
   .legend .anthropic { background: var(--anthropic-bg); color: var(--anthropic-ink); border: 1px solid var(--anthropic-bar); }
   .legend .both { background: var(--both-bg); color: var(--both-ink); border: 1px solid var(--both-bar); }
   .status { color: var(--muted); padding: 0 4px 12px; font-size: 12px; }
+  .cal { margin-top: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+         padding: 16px 20px; box-shadow: 0 6px 24px #b5a99212; }
+  .cal-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .cal-top h2 { margin: 0; font-size: 14px; font-weight: 500; color: var(--fg); }
+  .years { display: flex; gap: 6px; }
+  .years button { border: 1px solid var(--line); background: var(--card); color: var(--muted); border-radius: 999px;
+                  padding: 3px 12px; font: inherit; font-size: 12px; cursor: pointer; }
+  .years button.active { background: #e6f0eb; border-color: #a8d5bf; color: #5d8a76; }
+  .cal-scroll { overflow-x: auto; padding-bottom: 4px; }
+  .cal-grid { display: grid; grid-template-columns: 28px repeat(var(--weeks), minmax(10px, 1fr)); grid-template-rows: 16px;
+              gap: 3px; min-width: 720px; font-size: 10px; color: var(--muted); align-items: center; }
+  .cal-grid .m { grid-row: 1; white-space: nowrap; }
+  .cal-grid .d { grid-column: 1; }
+  .cal-grid .cell { width: 100%; height: auto; aspect-ratio: 1; }
+  .cell { width: 12px; height: 12px; border-radius: 3px; background: var(--l0); outline: 1px solid #0000000a; outline-offset: -1px; }
+  .cell.has { cursor: pointer; }
+  .cell:hover { outline: 1px solid #5d8a76; }
+  .cell.sel { outline: 2px solid #5d8a76; }
+  .cal-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 11px; color: var(--muted); flex-wrap: wrap; gap: 8px; }
+  .scale { display: flex; align-items: center; gap: 3px; }
+  .tip { position: fixed; pointer-events: none; background: #5a564f; color: #fffdf9; font-size: 12px; padding: 5px 10px;
+         border-radius: 8px; white-space: nowrap; transform: translate(-50%, -100%); opacity: 0; transition: opacity .1s; z-index: 10; }
   .wrap { overflow: auto; max-height: calc(100vh - 170px); background: var(--card); border: 1px solid var(--line);
           border-radius: 18px; box-shadow: 0 6px 24px #b5a99212; }
   table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1300px; }
@@ -83,6 +106,13 @@
 <header><h1>Rogue <b>.</b> AI</h1><span>A tracker of real-world incidents where AI systems went wrong.</span></header>
 
 <main>
+<section class="cal">
+  <div class="cal-top"><h2 id="cal-title">Incidents disclosed</h2><div class="years" id="years"></div></div>
+  <div class="cal-scroll"><div class="cal-grid" id="cal-grid"></div></div>
+  <div class="cal-foot"><span>Click a day to filter the table</span>
+    <span class="scale">Less <i class="cell" style="background:var(--l0)"></i><i class="cell" style="background:var(--l1)"></i><i class="cell" style="background:var(--l2)"></i><i class="cell" style="background:var(--l3)"></i><i class="cell" style="background:var(--l4)"></i> More</span></div>
+</section>
+<div class="tip" id="tip"></div>
 <div class="bar">
   <input id="q" type="search" placeholder="Search incidents…">
   <button id="reset">Clear filters</button>
@@ -128,9 +158,66 @@ function companyGroup(c) {
 let data = [], sortKey = "Disclosed on", sortDir = -1;
 const filters = {};
 
+// ---- GitHub-style calendar of disclosure dates ----
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+let selDate = "", calYear = null;
+const key = d => `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;   // same M/D/YYYY format as the sheet
+const fmt = k => { const [m, d, y] = k.split("/"); return `${MONTHS[m - 1]} ${d}, ${y}`; };
+
+function renderCal() {
+  const counts = {};
+  for (const r of data) { const k = (r["Disclosed on"] || "").trim(); if (k) counts[k] = (counts[k] || 0) + 1; }
+  const years = [...new Set(Object.keys(counts).map(k => +k.split("/")[2]))].sort((a, b) => b - a);
+  if (calYear === null) calYear = years[0];
+
+  const yb = document.getElementById("years");
+  yb.innerHTML = "";
+  for (const y of years) {
+    const b = document.createElement("button");
+    b.textContent = y; b.className = y === calYear ? "active" : "";
+    b.onclick = () => { calYear = y; renderCal(); };
+    yb.appendChild(b);
+  }
+
+  const start = new Date(calYear, 0, 1); start.setDate(start.getDate() - start.getDay());   // back to Sunday
+  const end = new Date(calYear, 11, 31);
+  const weeks = Math.ceil(((end - start) / 864e5 + 1) / 7);
+  const grid = document.getElementById("cal-grid");
+  grid.style.setProperty("--weeks", weeks);
+  grid.innerHTML = "";
+  ["", "Mon", "", "Wed", "", "Fri", ""].forEach((t, i) => {
+    const el = document.createElement("span"); el.className = "d"; el.textContent = t; el.style.gridRow = i + 2; grid.appendChild(el);
+  });
+
+  let total = 0;
+  const tip = document.getElementById("tip");
+  for (let d = new Date(start), i = 0; d <= end; d.setDate(d.getDate() + 1), i++) {
+    const col = Math.floor(i / 7) + 2;
+    if (d.getFullYear() !== calYear) continue;
+    if (d.getDate() === 1) {   // month label above the week where the month starts
+      const m = document.createElement("span"); m.className = "m"; m.textContent = MONTHS[d.getMonth()];
+      m.style.gridColumn = `${col} / span 3`; grid.appendChild(m);
+    }
+    const k = key(d), n = counts[k] || 0;
+    total += n;
+    const c = document.createElement("i");
+    c.className = "cell" + (n ? " has" : "") + (k === selDate ? " sel" : "");
+    c.style.gridColumn = col; c.style.gridRow = d.getDay() + 2;
+    if (n) c.style.background = `var(--l${Math.min(n, 4)})`;
+    const label = `${n ? n : "No"} incident${n === 1 ? "" : "s"} on ${fmt(k)}`;
+    c.onmouseenter = () => { const r = c.getBoundingClientRect(); tip.textContent = label;
+      tip.style.left = r.left + r.width / 2 + "px"; tip.style.top = r.top - 6 + "px"; tip.style.opacity = 1; };
+    c.onmouseleave = () => { tip.style.opacity = 0; };
+    if (n) c.onclick = () => { selDate = selDate === k ? "" : k; render(); };
+    grid.appendChild(c);
+  }
+  document.getElementById("cal-title").textContent = `${total} incident${total === 1 ? "" : "s"} disclosed in ${calYear}`;
+}
+
 function render() {
   const q = document.getElementById("q").value.toLowerCase();
   let rows = data.filter(r => {
+    if (selDate && r["Disclosed on"] !== selDate) return false;
     if (q && !COLS.some(c => (r[c.key] || "").toLowerCase().includes(q))) return false;
     return COLS.every(c => {
       const f = filters[c.key];
@@ -179,7 +266,8 @@ function render() {
   document.querySelectorAll("#heads th").forEach((th, i) => {
     th.querySelector(".arrow").textContent = COLS[i].key === sortKey ? (sortDir > 0 ? " ▲" : " ▼") : "";
   });
-  document.getElementById("status").textContent = `Showing ${rows.length} of ${data.length} incidents · ${source}`;
+  document.getElementById("status").textContent = `Showing ${rows.length} of ${data.length} incidents${selDate ? " disclosed on " + fmt(selDate) : ""} · ${source}`;
+  renderCal();
 }
 
 function buildHeader() {
@@ -215,6 +303,7 @@ document.getElementById("reset").onclick = () => {
   document.getElementById("q").value = "";
   document.querySelectorAll("#filters input, #filters select").forEach(el => el.value = "");
   for (const k in filters) delete filters[k];
+  selDate = "";
   render();
 };
 
