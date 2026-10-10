@@ -38,7 +38,11 @@
                 background: var(--card); color: var(--fg); cursor: pointer; font: inherit; transition: background .2s; }
   .bar button:hover { background: var(--head); }
   .legend { display: flex; gap: 8px; flex-wrap: wrap; }
-  .legend span { padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 500; }
+  .legend button { padding: 5px 14px; border-radius: 999px; font: inherit; font-size: 12px; font-weight: 500;
+                   cursor: pointer; transition: transform .15s, box-shadow .2s, opacity .2s; }
+  .legend button:hover { transform: translateY(-1px); }
+  .legend.filtering button:not(.active) { opacity: .5; }
+  .legend button.active { box-shadow: 0 0 0 3px #ffffff, 0 0 0 4px currentColor; }
   .legend .openai { background: var(--openai-bg); color: var(--openai-ink); border: 1px solid var(--openai-bar); }
   .legend .anthropic { background: var(--anthropic-bg); color: var(--anthropic-ink); border: 1px solid var(--anthropic-bar); }
   .legend .both { background: var(--both-bg); color: var(--both-ink); border: 1px solid var(--both-bar); }
@@ -83,9 +87,9 @@
   <input id="q" type="search" placeholder="Search incidents…">
   <button id="reset">Clear filters</button>
   <div class="legend">
-    <span class="openai">OpenAI</span>
-    <span class="anthropic">Anthropic</span>
-    <span class="both">Both</span>
+    <button class="openai" data-company="OpenAI" title="Show only OpenAI incidents">OpenAI</button>
+    <button class="anthropic" data-company="Anthropic" title="Show only Anthropic incidents">Anthropic</button>
+    <button class="both" data-company="Both" title="Show only incidents involving both">Both</button>
   </div>
 </div>
 <div class="status" id="status">Loading data from spreadsheet…</div>
@@ -166,6 +170,12 @@ function render() {
     }
     tbody.appendChild(tr);
   }
+  // Keep the colour labels and the Company dropdown in sync with the active filter
+  const legend = document.querySelector(".legend");
+  legend.classList.toggle("filtering", !!filters.Company);
+  legend.querySelectorAll("button").forEach(b => b.classList.toggle("active", b.dataset.company === filters.Company));
+  const sel = document.querySelector('#filters select[data-key="Company"]');
+  if (sel) sel.value = filters.Company || "";
   document.querySelectorAll("#heads th").forEach((th, i) => {
     th.querySelector(".arrow").textContent = COLS[i].key === sortKey ? (sortDir > 0 ? " ▲" : " ▼") : "";
   });
@@ -188,6 +198,7 @@ function buildHeader() {
       const opts = [...new Set(data.map(r => c.derive ? c.derive(r[c.key] || "") : r[c.key]).filter(Boolean))].sort();
       el.innerHTML = `<option value="">All</option>`;
       for (const o of opts) { const op = document.createElement("option"); op.value = op.textContent = o; el.appendChild(op); }
+      el.dataset.key = c.key;
       el.onchange = () => { filters[c.key] = el.value; render(); };
       fh.appendChild(el);
     }
@@ -196,6 +207,10 @@ function buildHeader() {
 }
 
 document.getElementById("q").oninput = render;
+document.querySelectorAll(".legend button").forEach(b => b.onclick = () => {
+  filters.Company = filters.Company === b.dataset.company ? "" : b.dataset.company;
+  render();
+});
 document.getElementById("reset").onclick = () => {
   document.getElementById("q").value = "";
   document.querySelectorAll("#filters input, #filters select").forEach(el => el.value = "");
