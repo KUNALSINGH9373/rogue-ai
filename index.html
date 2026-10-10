@@ -41,6 +41,7 @@
   tr.filters input, tr.filters select { width: 100%; min-width: 80px; padding: 4px 6px; font: inherit; font-size: 12px;
          border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--fg); }
   td.long { min-width: 280px; }
+  td a { display: block; color: inherit; margin-bottom: 4px; word-break: break-word; }
   tr.openai td { background: var(--openai-bg); }
   tr.openai td:first-child { box-shadow: inset 4px 0 var(--openai-bar); }
   tr.anthropic td { background: var(--anthropic-bg); }
@@ -72,11 +73,11 @@
 </div>
 
 <script>
-const SHEET_CSV = "https://docs.google.com/spreadsheets/d/15tpVhsFph5AHnAuUsHFBY82zPciBDJzpfQzWKZ_cNP0/gviz/tq?tqx=out:csv";
+const SHEET = "https://docs.google.com/spreadsheets/d/15tpVhsFph5AHnAuUsHFBY82zPciBDJzpfQzWKZ_cNP0/gviz/tq?tqx=out:csv&gid=";
+const INCIDENTS_GID = "1500637786", SOURCES_GID = "1116836595";
 
 // Columns shown on the site. Internal sheet columns (private notes, discovery keys, etc.) are deliberately left out.
 const COLS = [
-  { key: "Incident ID",       type: "text" },
   { key: "Event title",       type: "text", long: true },
   { key: "Occurrence label",  type: "text", label: "Occurred" },
   { key: "Disclosed on",      type: "text", date: true },
@@ -86,8 +87,7 @@ const COLS = [
   { key: "Incident summary",  type: "text", long: true },
   { key: "Outcome",           type: "text", long: true },
   { key: "Evidence",          type: "text" },
-  { key: "Review status",     type: "select" },
-  { key: "Confidence score",  type: "text", num: true, label: "Confidence" },
+  { key: "Sources",           type: "text", links: true },
 ];
 
 function companyGroup(c) {
@@ -126,7 +126,15 @@ function render() {
     tr.className = companyGroup(r["Company"] || "").toLowerCase();
     for (const c of COLS) {
       const td = document.createElement("td");
-      td.textContent = r[c.key] || "";
+      if (c.links) {
+        for (const src of r._sources) {
+          const a = document.createElement("a");
+          a.href = src.URL; a.target = "_blank"; a.rel = "noopener";
+          a.textContent = src.Publisher || src["Source title"] || src.URL;
+          a.title = src["Source title"] || src.URL;
+          td.appendChild(a);
+        }
+      } else td.textContent = r[c.key] || "";
       if (c.long) td.className = "long";
       tr.appendChild(td);
     }
@@ -173,15 +181,20 @@ document.getElementById("reset").onclick = () => {
   render();
 };
 
-Papa.parse(SHEET_CSV + "&t=" + Date.now(), {
-  download: true, header: true, skipEmptyLines: true,
-  complete: res => {
-    data = res.data.filter(r => r["Incident ID"]);
-    buildHeader();
-    render();
-  },
-  error: () => { document.getElementById("status").textContent = "Could not load the spreadsheet."; }
-});
+const load = gid => new Promise((resolve, reject) => Papa.parse(SHEET + gid + "&t=" + Date.now(), {
+  download: true, header: true, skipEmptyLines: true, complete: res => resolve(res.data), error: reject
+}));
+
+Promise.all([load(INCIDENTS_GID), load(SOURCES_GID)]).then(([incidents, sources]) => {
+  data = incidents.filter(r => r["Incident ID"]);
+  for (const r of data) {
+    r._sources = sources.filter(s => s["Incident ID"] === r["Incident ID"] && /^https?:\/\//.test(s.URL || ""));
+    // Searchable text for the Sources column
+    r.Sources = r._sources.map(s => [s.Publisher, s["Source title"], s.URL].join(" ")).join(" ");
+  }
+  buildHeader();
+  render();
+}).catch(() => { document.getElementById("status").textContent = "Could not load the spreadsheet."; });
 </script>
 </body>
 </html>
