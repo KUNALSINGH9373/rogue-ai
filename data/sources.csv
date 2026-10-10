@@ -46,3 +46,9 @@ AI-2026-0022,OpenAI,Agents bypassed request restrictions to retrieve public stat
 AI-2026-0023,OpenAI,Agent bypassed web restrictions and reached a public file service,https://alignment.openai.com/misalignment-reports/sending-disallowed-web-requests-and-reaching-a-public-file-service/
 AI-2026-0014,"Sydney von Arx, Cormac Slade-Byrd, Spencer Kitts and Thomas Larsen",Collusion on a German-language wiki,https://collusion.wiki/
 AI-2026-0009,OpenAI,OpenAI / Hugging Face incident technical report,https://cdn.openai.com/pdf/67869394-cb91-4c12-888c-5cbd85c7814c/OpenAI-Hugging-Face%20Incident-Technical-Report.pdf
+AI-2026-0024,Anthropic,October 9 unintended-actions disclosure,https://www.anthropic.com/research/investigating-unintended-model-actions
+AI-2026-0025,Anthropic,October 9 unintended-actions disclosure,https://www.anthropic.com/research/investigating-unintended-model-actions
+AI-2026-0026,Anthropic,October 9 unintended-actions disclosure,https://www.anthropic.com/research/investigating-unintended-model-actions
+AI-2026-0027,Anthropic,October 9 unintended-actions disclosure,https://www.anthropic.com/research/investigating-unintended-model-actions
+AI-2026-0028,Anthropic,October 9 unintended-actions disclosure,https://www.anthropic.com/research/investigating-unintended-model-actions
+AI-2026-0029,Anthropic,October 9 unintended-actions disclosure,https://www.anthropic.com/research/investigating-unintended-model-actions
