@@ -21,7 +21,7 @@
     --line: #ece6dc;
     --head: #f3eee5;
     --accent: #8fb3a8;      /* sage */
-    --l0: #efe9df; --l1: #f5cdc5; --l2: #eba596; --l3: #dc7a68; --l4: #c0533f;   /* calendar shades */
+    --m-openai: #1a9c8c; --m-anthropic: #d4663c; --m-both: #8a6fd1; --m-other: #b3aca2;   /* timeline markers (CVD-validated) */
     --openai-bg: #eef6f1;  --openai-bar: #a8d5bf;  --openai-ink: #5d8a76;
     --anthropic-bg: #fcf1ea; --anthropic-bar: #f2c4a8; --anthropic-ink: #b07a5c;
     --both-bg: #f4f0fa;    --both-bar: #cdbfe6;    --both-ink: #8473a8;
@@ -65,26 +65,24 @@
   .legend .anthropic { background: var(--anthropic-bg); color: var(--anthropic-ink); border: 1px solid var(--anthropic-bar); }
   .legend .both { background: var(--both-bg); color: var(--both-ink); border: 1px solid var(--both-bar); }
   .status { color: var(--muted); padding: 0 4px 12px; font-size: 12px; }
-  .cal { margin-top: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 18px;
-         padding: 12px 20px; box-shadow: 0 6px 24px #b5a99212; }
-  .cal-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
-  .cal-top h2 { margin: 0; font-size: 14px; font-weight: 500; color: var(--fg); }
-  .years { display: flex; gap: 6px; }
-  .years button { border: 1px solid var(--line); background: var(--card); color: var(--muted); border-radius: 999px;
-                  padding: 3px 12px; font: inherit; font-size: 12px; cursor: pointer; }
-  .years button.active { background: #fbe9e5; border-color: #eba596; color: #b04a38; }
-  .cal-scroll { overflow-x: auto; padding-bottom: 4px; }
-  .cal-grid { display: grid; grid-template-columns: 28px repeat(var(--weeks), minmax(9px, 14px)); grid-template-rows: 14px;
-              gap: 3px; min-width: 640px; justify-content: center; font-size: 10px; color: var(--muted); align-items: center; }
-  .cal-grid .m { grid-row: 1; white-space: nowrap; }
-  .cal-grid .d { grid-column: 1; }
-  .cal-grid .cell { width: 100%; height: auto; aspect-ratio: 1; }
-  .cell { width: 12px; height: 12px; border-radius: 3px; background: var(--l0); outline: 1px solid #0000000a; outline-offset: -1px; }
-  .cell.has { cursor: pointer; }
-  .cell:hover { outline: 1px solid #b04a38; }
-  .cell.sel { outline: 2px solid #b04a38; }
-  .cal-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 11px; color: var(--muted); flex-wrap: wrap; gap: 8px; }
-  .scale { display: flex; align-items: center; gap: 3px; }
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 18px; }
+  .stat b { display: block; font: 500 30px/1.15 Fraunces, Georgia, serif; color: #5a564f; }
+  .stat span { font-size: 12px; color: var(--muted); }
+  .tl { margin-top: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+        padding: 12px 20px 8px; box-shadow: 0 6px 24px #b5a99212; }
+  .tl-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .tl-top h2 { margin: 0; font-size: 14px; font-weight: 500; color: var(--fg); }
+  .tl-key { display: flex; gap: 12px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+  .tl-key i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: 0; }
+  .ranges { display: flex; gap: 6px; }
+  .ranges button { border: 1px solid var(--line); background: var(--card); color: var(--muted); border-radius: 999px;
+                   padding: 3px 12px; font: inherit; font-size: 12px; cursor: pointer; }
+  .ranges button.active { background: var(--head); border-color: #d9d1c4; color: var(--fg); }
+  #tl-svg { display: block; width: 100%; overflow: visible; }
+  #tl-svg .dot { cursor: pointer; }
+  #tl-svg text { font: 10px Inter, sans-serif; fill: var(--muted); }
+  .tl-foot { font-size: 11px; color: var(--muted); padding-top: 2px; }
   .tip { position: fixed; pointer-events: none; background: #5a564f; color: #fffdf9; font-size: 12px; padding: 5px 10px;
          border-radius: 8px; white-space: nowrap; transform: translate(-50%, -100%); opacity: 0; transition: opacity .1s; z-index: 10; }
   .wrap { overflow: auto; max-height: calc(100vh - 170px); background: var(--card); border: 1px solid var(--line);
@@ -119,8 +117,9 @@
     .hal { flex-wrap: wrap; justify-content: center; }
     .hal { gap: 8px; } .hal q { font-size: 14px; } .eye { width: 16px; height: 16px; }
     main { padding: 0 16px 24px; }
-    .cal { padding: 12px 14px; border-radius: 14px; }
-    .cal-top h2 { font-size: 13px; }
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .stat { padding: 10px 14px; } .stat b { font-size: 24px; }
+    .tl { padding: 12px 14px 6px; border-radius: 14px; }
     .bar input { flex-basis: 100%; }
     .bar button#reset { padding: 6px 14px; font-size: 13px; }
     /* Table becomes a stack of cards */
@@ -150,11 +149,22 @@
 <header><h1>Rogue <b>.</b> AI</h1><div class="hal" title="HAL 9000, 2001: A Space Odyssey (1968)"><i class="eye"></i><q>I'm sorry, Dave. I'm afraid I can't do that.</q><small>— HAL 9000</small></div></header>
 
 <main>
-<section class="cal">
-  <div class="cal-top"><h2 id="cal-title">Incidents disclosed</h2><div class="years" id="years"></div></div>
-  <div class="cal-scroll"><div class="cal-grid" id="cal-grid"></div></div>
-  <div class="cal-foot"><span>Click or tap a day to filter the table</span>
-    <span class="scale">Less <i class="cell" style="background:var(--l0)"></i><i class="cell" style="background:var(--l1)"></i><i class="cell" style="background:var(--l2)"></i><i class="cell" style="background:var(--l3)"></i><i class="cell" style="background:var(--l4)"></i> More</span></div>
+<section class="stats" id="stats"></section>
+<section class="tl">
+  <div class="tl-top">
+    <h2>Incident timeline</h2>
+    <div class="tl-key">
+      <span><i style="background:var(--m-openai)"></i>OpenAI</span>
+      <span><i style="background:var(--m-anthropic)"></i>Anthropic</span>
+      <span><i style="background:var(--m-both)"></i>Both</span>
+      <span><i style="background:var(--m-other)"></i>Other</span>
+    </div>
+    <div class="ranges" id="ranges">
+      <button data-days="90">90 days</button><button data-days="365">12 months</button><button data-days="0">All time</button>
+    </div>
+  </div>
+  <svg id="tl-svg" role="img" aria-label="Timeline of disclosed incidents up to today"></svg>
+  <div class="tl-foot" id="tl-foot"></div>
 </section>
 <div class="tip" id="tip"></div>
 <div class="bar">
@@ -202,72 +212,114 @@ function companyGroup(c) {
 let data = [], sortKey = "Disclosed on", sortDir = -1;
 const filters = {};
 
-// ---- GitHub-style calendar of disclosure dates ----
+// ---- Headline numbers + timeline of disclosure dates ----
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-let selDate = "", calYear = null, scrolledYear = null;
-const key = d => `${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;   // same M/D/YYYY format as the sheet
-const fmt = k => { const [m, d, y] = k.split("/"); return `${MONTHS[m - 1]} ${d}, ${y}`; };
+const DAY = 864e5;
+let selId = "", rangeDays = 365, visibleIds = new Set();
+const parseDate = k => { const [m, d, y] = (k || "").trim().split("/").map(Number); return y ? new Date(y, m - 1, d) : null; };
+const fmtDate = d => `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+const today = () => { const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate()); };
 
-function renderCal() {
-  const counts = {};
-  for (const r of data) { const k = (r["Disclosed on"] || "").trim(); if (k) counts[k] = (counts[k] || 0) + 1; }
-  const years = [...new Set(Object.keys(counts).map(k => +k.split("/")[2]))].sort((a, b) => b - a);
-  if (calYear === null) calYear = years[0];
-
-  const yb = document.getElementById("years");
-  yb.innerHTML = "";
-  for (const y of years) {
-    const b = document.createElement("button");
-    b.textContent = y; b.className = y === calYear ? "active" : "";
-    b.onclick = () => { calYear = y; renderCal(); };
-    yb.appendChild(b);
+function renderStats() {
+  const dates = data.map(r => parseDate(r["Disclosed on"])).filter(Boolean);
+  const last = new Date(Math.max(...dates));
+  const daysSince = Math.max(0, Math.round((today() - last) / DAY));
+  const unintended = data.filter(r => /unintended/i.test(r.Category || "")).length;
+  const sources = data.reduce((n, r) => n + r._sources.length, 0);
+  const tiles = [
+    [data.length, "incidents tracked"],
+    [daysSince, `day${daysSince === 1 ? "" : "s"} since the last incident`],
+    [`${Math.round(unintended / data.length * 100)}%`, "agents acting on their own (not human misuse)"],
+    [sources, "sources cited"],
+  ];
+  const el = document.getElementById("stats");
+  el.innerHTML = "";
+  for (const [v, l] of tiles) {
+    const d = document.createElement("div"); d.className = "stat";
+    d.innerHTML = "<b></b><span></span>";
+    d.firstChild.textContent = v; d.lastChild.textContent = l;
+    el.appendChild(d);
   }
-
-  const start = new Date(calYear, 0, 1); start.setDate(start.getDate() - start.getDay());   // back to Sunday
-  const end = new Date(calYear, 11, 31);
-  const weeks = Math.ceil(((end - start) / 864e5 + 1) / 7);
-  const grid = document.getElementById("cal-grid");
-  grid.style.setProperty("--weeks", weeks);
-  grid.innerHTML = "";
-  ["", "Mon", "", "Wed", "", "Fri", ""].forEach((t, i) => {
-    const el = document.createElement("span"); el.className = "d"; el.textContent = t; el.style.gridRow = i + 2; grid.appendChild(el);
-  });
-
-  let total = 0;
-  const tip = document.getElementById("tip");
-  for (let d = new Date(start), i = 0; d <= end; d.setDate(d.getDate() + 1), i++) {
-    const col = Math.floor(i / 7) + 2;
-    if (d.getFullYear() !== calYear) continue;
-    if (d.getDate() === 1) {   // month label above the week where the month starts
-      const m = document.createElement("span"); m.className = "m"; m.textContent = MONTHS[d.getMonth()];
-      m.style.gridColumn = `${col} / span 3`; grid.appendChild(m);
-    }
-    const k = key(d), n = counts[k] || 0;
-    total += n;
-    const c = document.createElement("i");
-    c.className = "cell" + (n ? " has" : "") + (k === selDate ? " sel" : "");
-    c.style.gridColumn = col; c.style.gridRow = d.getDay() + 2;
-    if (n) c.style.background = `var(--l${Math.min(n, 4)})`;
-    const label = `${n ? n : "No"} incident${n === 1 ? "" : "s"} on ${fmt(k)}`;
-    c.onmouseenter = () => { const r = c.getBoundingClientRect(); tip.textContent = label;
-      tip.style.left = r.left + r.width / 2 + "px"; tip.style.top = r.top - 6 + "px"; tip.style.opacity = 1; };
-    c.onmouseleave = () => { tip.style.opacity = 0; };
-    if (n) c.onclick = () => { selDate = selDate === k ? "" : k; render(); };
-    grid.appendChild(c);
-  }
-  // On narrow screens show the most recent months first when a year is opened
-  if (scrolledYear !== calYear) {
-    const sc = document.querySelector(".cal-scroll");
-    sc.scrollLeft = calYear === new Date().getFullYear() ? sc.scrollWidth : 0;
-    scrolledYear = calYear;
-  }
-  document.getElementById("cal-title").textContent = `${total} incident${total === 1 ? "" : "s"} disclosed in ${calYear}`;
 }
+
+function renderTimeline() {
+  const svg = document.getElementById("tl-svg"), NS = "http://www.w3.org/2000/svg";
+  const W = svg.clientWidth || 800, padL = 8, padR = 44, R = 6, STEP = 15, axisH = 22;
+  const end = today();
+  const all = data.map(r => ({ r, d: parseDate(r["Disclosed on"]) })).filter(x => x.d && x.d <= end);
+  const first = new Date(Math.min(...all.map(x => x.d)));
+  const start = rangeDays ? new Date(end - rangeDays * DAY) : new Date(first - 20 * DAY);
+  const x = d => padL + (d - start) / (end - start) * (W - padL - padR);
+  const inRange = all.filter(x0 => x0.d >= start).sort((a, b) => a.d - b.d);
+
+  // Stack markers that would overlap, like a dot plot
+  const levels = [];
+  for (const m of inRange) {
+    m.cx = x(m.d);
+    let lv = 0;
+    while (levels[lv] !== undefined && m.cx - levels[lv] < R * 2 + 3) lv++;
+    levels[lv] = m.cx; m.lv = lv;
+  }
+  const plotH = Math.max(3, levels.length + 1) * STEP;
+  const H = plotH + axisH;
+  const base = plotH - STEP / 2 - 2;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H);
+  svg.innerHTML = "";
+  const add = (tag, attrs, parent = svg) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+
+  // Axis: baseline, month ticks spaced so labels never collide
+  add("line", { x1: padL, x2: W - padR, y1: base + R + 4, y2: base + R + 4, stroke: "#e4ddd1" });
+  const spanMonths = (end - start) / (30.4 * DAY);
+  const pxPerMonth = (W - padL - padR) / spanMonths;
+  const every = [1, 2, 3, 6, 12].find(k => k * pxPerMonth >= 56) || 12;
+  for (let t = new Date(start.getFullYear(), start.getMonth() + 1, 1); t <= end; t = new Date(t.getFullYear(), t.getMonth() + 1, 1)) {
+    if ((t.getFullYear() * 12 + t.getMonth()) % every) continue;
+    const tx = x(t);
+    add("line", { x1: tx, x2: tx, y1: 0, y2: base + R + 4, stroke: "#f1ece3" });
+    const lbl = add("text", { x: tx, y: H - 6, "text-anchor": "middle" });
+    lbl.textContent = t.getMonth() === 0 || every >= 12 ? `${MONTHS[t.getMonth()]} ${t.getFullYear()}` : MONTHS[t.getMonth()];
+  }
+  // Today marker at the right edge: the axis stops here, no empty future
+  const tx = x(end);
+  add("line", { x1: tx, x2: tx, y1: 0, y2: base + R + 4, stroke: "#c9bfb0", "stroke-dasharray": "3 3" });
+  const tl = add("text", { x: tx + 4, y: H - 6 }); tl.textContent = "Today";
+
+  const tip = document.getElementById("tip");
+  for (const m of inRange) {
+    const grp = companyGroup(m.r.Company || "").toLowerCase();
+    const cy = base - m.lv * STEP;
+    const g = add("g", { class: "dot", opacity: visibleIds.has(m.r["Incident ID"]) ? 1 : 0.18 });
+    add("circle", { cx: m.cx, cy, r: R, fill: `var(--m-${grp})`, stroke: "#fffdf9", "stroke-width": 2 }, g);
+    if (m.r["Incident ID"] === selId) add("circle", { cx: m.cx, cy, r: R + 3, fill: "none", stroke: "#5a564f", "stroke-width": 1.5 }, g);
+    add("circle", { cx: m.cx, cy, r: R + 5, fill: "transparent" }, g);   // larger hit target
+    g.onmouseenter = () => {
+      const b = g.getBoundingClientRect();
+      tip.textContent = `${m.r["Event title"]} · ${fmtDate(m.d)} · ${companyGroup(m.r.Company || "")}`;
+      tip.style.left = b.left + b.width / 2 + "px"; tip.style.top = b.top - 6 + "px"; tip.style.opacity = 1;
+    };
+    g.onmouseleave = () => { tip.style.opacity = 0; };
+    g.onclick = () => {
+      tip.style.opacity = 0;
+      selId = selId === m.r["Incident ID"] ? "" : m.r["Incident ID"];
+      render();
+      if (selId) document.querySelector(".wrap").scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+  }
+  document.querySelectorAll("#ranges button").forEach(b => b.classList.toggle("active", +b.dataset.days === rangeDays));
+  const earlier = all.length - inRange.length;
+  document.getElementById("tl-foot").textContent =
+    `${inRange.length} incident${inRange.length === 1 ? "" : "s"} in view` +
+    (earlier ? ` · ${earlier} earlier (see All time)` : "") + " · hover for details, click to open in the table";
+}
+
+document.querySelectorAll("#ranges button").forEach(b => b.onclick = () => { rangeDays = +b.dataset.days; renderTimeline(); });
+let resizeT;
+window.addEventListener("resize", () => { clearTimeout(resizeT); resizeT = setTimeout(() => data.length && renderTimeline(), 150); });
 
 function render() {
   const q = document.getElementById("q").value.toLowerCase();
   let rows = data.filter(r => {
-    if (selDate && r["Disclosed on"] !== selDate) return false;
+    if (selId && r["Incident ID"] !== selId) return false;
     if (q && !COLS.some(c => (r[c.key] || "").toLowerCase().includes(q))) return false;
     return COLS.every(c => {
       const f = filters[c.key];
@@ -317,8 +369,9 @@ function render() {
   document.querySelectorAll("#heads th").forEach((th, i) => {
     th.querySelector(".arrow").textContent = COLS[i].key === sortKey ? (sortDir > 0 ? " ▲" : " ▼") : "";
   });
-  document.getElementById("status").textContent = `Showing ${rows.length} of ${data.length} incidents${selDate ? " disclosed on " + fmt(selDate) : ""} · ${source}`;
-  renderCal();
+  document.getElementById("status").textContent = `Showing ${rows.length} of ${data.length} incidents${selId ? " (one selected on the timeline)" : ""} · ${source}`;
+  visibleIds = new Set(rows.map(r => r["Incident ID"]));
+  renderTimeline();
 }
 
 function buildHeader() {
@@ -354,7 +407,7 @@ document.getElementById("reset").onclick = () => {
   document.getElementById("q").value = "";
   document.querySelectorAll("#filters input, #filters select").forEach(el => el.value = "");
   for (const k in filters) delete filters[k];
-  selDate = "";
+  selId = "";
   render();
 };
 
@@ -380,6 +433,7 @@ loadAll().then(([incidents, sources]) => {
     r.Sources = r._sources.map(s => [s.Publisher, s["Source title"], s.URL].join(" ")).join(" ");
   }
   buildHeader();
+  renderStats();
   render();
 }).catch(() => { document.getElementById("status").textContent = "Could not load the spreadsheet."; });
 </script>
