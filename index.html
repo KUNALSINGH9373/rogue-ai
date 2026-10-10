@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rogue . AI</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<style>
+  :root {
+    --bg: #fafaf9; --fg: #1c1917; --muted: #78716c; --line: #e7e5e4; --head: #f5f5f4;
+    --openai-bg: #e8f5ee; --openai-bar: #10a37f;
+    --anthropic-bg: #fbeee6; --anthropic-bar: #d97757;
+    --both-bg: #f3effa; --both-bar: #8b6fc6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1c1917; --fg: #f5f5f4; --muted: #a8a29e; --line: #3a3532; --head: #292524;
+      --openai-bg: #15302a; --anthropic-bg: #3a2419; --both-bg: #2b2440;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  header { padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex;
+           align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  header h1 { margin: 0; font-size: 18px; }
+  header span { color: var(--muted); font-size: 13px; }
+  .bar { padding: 10px 16px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .bar input { flex: 1 1 240px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 6px;
+               background: var(--bg); color: var(--fg); font: inherit; }
+  .bar button { padding: 7px 12px; border: 1px solid var(--line); border-radius: 6px;
+                background: var(--head); color: var(--fg); cursor: pointer; font: inherit; }
+  .legend { display: flex; gap: 12px; color: var(--muted); font-size: 12px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: -1px; }
+  .wrap { overflow-x: auto; padding: 0 16px 24px; }
+  table { border-collapse: collapse; width: 100%; min-width: 1400px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 8px; text-align: left; vertical-align: top; }
+  th { background: var(--head); position: sticky; top: 0; font-weight: 600; white-space: nowrap; cursor: pointer; user-select: none; }
+  th .arrow { color: var(--muted); font-size: 11px; }
+  tr.filters th { cursor: default; padding: 4px 8px; }
+  tr.filters input, tr.filters select { width: 100%; min-width: 80px; padding: 4px 6px; font: inherit; font-size: 12px;
+         border: 1px solid var(--line); border-radius: 4px; background: var(--bg); color: var(--fg); }
+  td.long { min-width: 280px; }
+  tr.openai td { background: var(--openai-bg); }
+  tr.openai td:first-child { box-shadow: inset 4px 0 var(--openai-bar); }
+  tr.anthropic td { background: var(--anthropic-bg); }
+  tr.anthropic td:first-child { box-shadow: inset 4px 0 var(--anthropic-bar); }
+  tr.both td { background: var(--both-bg); }
+  tr.both td:first-child { box-shadow: inset 4px 0 var(--both-bar); }
+  .status { color: var(--muted); padding: 0 16px 8px; font-size: 12px; }
+</style>
+</head>
+<body>
+<header><h1>Rogue . AI</h1><span>A tracker of real-world incidents where AI systems went wrong.</span></header>
+
+<div class="bar">
+  <input id="q" type="search" placeholder="Search all columns…">
+  <button id="reset">Clear filters</button>
+  <div class="legend">
+    <span><i style="background:var(--openai-bar)"></i>OpenAI</span>
+    <span><i style="background:var(--anthropic-bar)"></i>Anthropic</span>
+    <span><i style="background:var(--both-bar)"></i>Both</span>
+  </div>
+</div>
+<div class="status" id="status">Loading data from spreadsheet…</div>
+
+<div class="wrap">
+  <table>
+    <thead><tr id="heads"></tr><tr class="filters" id="filters"></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+</div>
+
+<script>
+const SHEET_CSV = "https://docs.google.com/spreadsheets/d/15tpVhsFph5AHnAuUsHFBY82zPciBDJzpfQzWKZ_cNP0/gviz/tq?tqx=out:csv";
+
+// Columns shown on the site. Internal sheet columns (private notes, discovery keys, etc.) are deliberately left out.
+const COLS = [
+  { key: "Incident ID",       type: "text" },
+  { key: "Event title",       type: "text", long: true },
+  { key: "Occurrence label",  type: "text", label: "Occurred" },
+  { key: "Disclosed on",      type: "text", date: true },
+  { key: "Company",           type: "select", derive: companyGroup },
+  { key: "Model",             type: "text" },
+  { key: "Category",          type: "select" },
+  { key: "Incident summary",  type: "text", long: true },
+  { key: "Outcome",           type: "text", long: true },
+  { key: "Evidence",          type: "text" },
+  { key: "Review status",     type: "select" },
+  { key: "Confidence score",  type: "text", num: true, label: "Confidence" },
+];
+
+function companyGroup(c) {
+  const o = /openai/i.test(c), a = /anthropic/i.test(c);
+  return o && a ? "Both" : o ? "OpenAI" : a ? "Anthropic" : "Other";
+}
+
+let data = [], sortKey = "Disclosed on", sortDir = -1;
+const filters = {};
+
+function render() {
+  const q = document.getElementById("q").value.toLowerCase();
+  let rows = data.filter(r => {
+    if (q && !COLS.some(c => (r[c.key] || "").toLowerCase().includes(q))) return false;
+    return COLS.every(c => {
+      const f = filters[c.key];
+      if (!f) return true;
+      const v = r[c.key] || "";
+      if (c.type === "select") return (c.derive ? c.derive(v) : v) === f;
+      return v.toLowerCase().includes(f.toLowerCase());
+    });
+  });
+  const col = COLS.find(c => c.key === sortKey);
+  const val = r => {
+    const v = r[sortKey] || "";
+    if (col.date) return Date.parse(v) || 0;
+    if (col.num) return parseFloat(v) || 0;
+    return v.toLowerCase();
+  };
+  rows.sort((a, b) => (val(a) > val(b) ? 1 : val(a) < val(b) ? -1 : 0) * sortDir);
+
+  const tbody = document.getElementById("rows");
+  tbody.innerHTML = "";
+  for (const r of rows) {
+    const tr = document.createElement("tr");
+    tr.className = companyGroup(r["Company"] || "").toLowerCase();
+    for (const c of COLS) {
+      const td = document.createElement("td");
+      td.textContent = r[c.key] || "";
+      if (c.long) td.className = "long";
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+  document.querySelectorAll("#heads th").forEach((th, i) => {
+    th.querySelector(".arrow").textContent = COLS[i].key === sortKey ? (sortDir > 0 ? " ▲" : " ▼") : "";
+  });
+  document.getElementById("status").textContent = `Showing ${rows.length} of ${data.length} incidents · live from Google Sheets`;
+}
+
+function buildHeader() {
+  const heads = document.getElementById("heads"), frow = document.getElementById("filters");
+  for (const c of COLS) {
+    const th = document.createElement("th");
+    th.innerHTML = `<span></span><span class="arrow"></span>`;
+    th.firstChild.textContent = c.label || c.key;
+    th.onclick = () => { sortDir = sortKey === c.key ? -sortDir : 1; sortKey = c.key; render(); };
+    heads.appendChild(th);
+
+    const fh = document.createElement("th");
+    let el;
+    if (c.type === "select") {
+      el = document.createElement("select");
+      const opts = [...new Set(data.map(r => c.derive ? c.derive(r[c.key] || "") : r[c.key]).filter(Boolean))].sort();
+      el.innerHTML = `<option value="">All</option>`;
+      for (const o of opts) { const op = document.createElement("option"); op.value = op.textContent = o; el.appendChild(op); }
+      el.onchange = () => { filters[c.key] = el.value; render(); };
+    } else {
+      el = document.createElement("input");
+      el.type = "search"; el.placeholder = "Filter";
+      el.oninput = () => { filters[c.key] = el.value; render(); };
+    }
+    fh.appendChild(el);
+    frow.appendChild(fh);
+  }
+}
+
+document.getElementById("q").oninput = render;
+document.getElementById("reset").onclick = () => {
+  document.getElementById("q").value = "";
+  document.querySelectorAll("#filters input, #filters select").forEach(el => el.value = "");
+  for (const k in filters) delete filters[k];
+  render();
+};
+
+Papa.parse(SHEET_CSV + "&t=" + Date.now(), {
+  download: true, header: true, skipEmptyLines: true,
+  complete: res => {
+    data = res.data.filter(r => r["Incident ID"]);
+    buildHeader();
+    render();
+  },
+  error: () => { document.getElementById("status").textContent = "Could not load the spreadsheet."; }
+});
+</script>
+</body>
+</html>
