@@ -169,7 +169,7 @@ function render() {
   document.querySelectorAll("#heads th").forEach((th, i) => {
     th.querySelector(".arrow").textContent = COLS[i].key === sortKey ? (sortDir > 0 ? " ▲" : " ▼") : "";
   });
-  document.getElementById("status").textContent = `Showing ${rows.length} of ${data.length} incidents · live from Google Sheets`;
+  document.getElementById("status").textContent = `Showing ${rows.length} of ${data.length} incidents · ${source}`;
 }
 
 function buildHeader() {
@@ -207,11 +207,21 @@ document.getElementById("reset").onclick = () => {
   render();
 };
 
-const load = gid => new Promise((resolve, reject) => Papa.parse(SHEET + gid + "&t=" + Date.now(), {
-  download: true, header: true, skipEmptyLines: true, complete: res => resolve(res.data), error: reject
+const parse = url => new Promise((resolve, reject) => Papa.parse(url, {
+  download: true, header: true, skipEmptyLines: true,
+  complete: res => res.data.length && "Incident ID" in res.data[0] ? resolve(res.data) : reject(new Error("bad data")),
+  error: reject
 }));
 
-Promise.all([load(INCIDENTS_GID), load(SOURCES_GID)]).then(([incidents, sources]) => {
+// Live from Google first; if the browser blocks that (ad/privacy blockers), use the snapshot synced into the repo.
+let source = "live from Google Sheets";
+const loadAll = () => Promise.all([parse(SHEET + INCIDENTS_GID + "&t=" + Date.now()), parse(SHEET + SOURCES_GID + "&t=" + Date.now())])
+  .catch(() => {
+    source = "from the latest synced copy of the sheet";
+    return Promise.all([parse("data/incidents.csv?t=" + Date.now()), parse("data/sources.csv?t=" + Date.now())]);
+  });
+
+loadAll().then(([incidents, sources]) => {
   data = incidents.filter(r => r["Incident ID"]);
   for (const r of data) {
     r._sources = sources.filter(s => s["Incident ID"] === r["Incident ID"] && /^https?:\/\//.test(s.URL || ""));

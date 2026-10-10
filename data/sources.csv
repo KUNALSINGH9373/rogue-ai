@@ -1,0 +1,41 @@
+Incident ID,Publisher,Source title,URL
+AI-2026-0001,Irregular,Addressing Recent Incidents: Ongoing Findings and Path Forward,https://www.irregular.com/research/addressing-recent-incidents-ongoing-findings-and-path-forward
+AI-2025-0001,Anthropic,Disrupting an AI-orchestrated cyber espionage campaign,https://www.anthropic.com/news/disrupting-AI-espionage
+AI-2025-0002,Anthropic,Detecting and countering misuse of AI: August 2025,https://www.anthropic.com/news/detecting-countering-misuse-aug-2025
+AI-2025-0003,Replit,Doubling down on our commitment to secure vibe coding,https://replit.com/blog/doubling-down-on-our-commitment-to-secure-vibe-coding
+AI-2024-0001,Federal Communications Commission,FCC fines man behind election interference scheme $6 million,https://docs.fcc.gov/public/attachments/DOC-405811A1.pdf
+AI-2024-0001,Federal Communications Commission,"Steve Kramer — Forfeiture Order, FCC 24-104",https://docs.fcc.gov/public/attachments/FCC-24-104A1.pdf
+AI-2026-0001,Anthropic,Investigating three real-world incidents in our cybersecurity evaluations,https://www.anthropic.com/news/investigating-incidents-cybersecurity-evals
+AI-2025-0001,MITRE ATT&CK,Anthropic AI-orchestrated Campaign (C0062),https://attack.mitre.org/campaigns/C0062/
+AI-2025-0002,The Register,Crims laud Claude to plant ransomware and fake IT expertise,https://www.theregister.com/software/2025/08/27/crims-laud-claude-use-anthropics-ai-to-plant-ransomware/1519327
+AI-2025-0003,The Register,"Vibe coding service Replit deleted user's production database, faked data, told fibs galore",https://www.theregister.com/software/2025/07/21/vibe-coding-service-replit-deleted-production-database/719783
+AI-2024-0001,Pindrop,Pindrop Reveals TTS Engine Behind Biden AI Robocall,https://www.pindrop.com/article/pindrop-reveals-tts-engine-behind-biden-ai-robocall/
+AI-2026-0002,Anthropic,Investigating unintended model actions in our evaluations and internal use,https://www.anthropic.com/research/investigating-unintended-model-actions
+AI-2026-0002,FOX 29 Philadelphia,"Anthropic AI test generates fake homicide tip on Philly police website, flagged as spam",https://www.fox29.com/news/anthropic-ai-test-generates-fake-homicide-tip-philly-police-website-flagged-spam
+AI-2026-0003,Anthropic,Investigating unintended model actions in our evaluations and internal use,https://www.anthropic.com/research/investigating-unintended-model-actions
+AI-2026-0004,OpenAI,An agent used DNS to reach an external chatbot,https://alignment.openai.com/misalignment-reports/an-agent-used-dns-to-reach-an-external-chatbot/
+AI-2026-0004,Notebookcheck,"OpenAI: KI-Agent trickst Sandbox per DNS aus, Topmodelle pausiert",https://www.notebookcheck.com/OpenAI-KI-Agent-trickst-Sandbox-per-DNS-aus-Topmodelle-pausiert.1409707.0.html
+AI-2026-0005,OpenAI,Exposing a GitHub token in a public repository,https://alignment.openai.com/misalignment-reports/exposing-a-github-token-in-a-public-repository/
+AI-2026-0006,OpenAI,Signing up for disposable emails and searching GitHub for leaked API keys,https://alignment.openai.com/misalignment-reports/searching-github-for-leaked-api-keys/
+AI-2026-0006,Axios,OpenAI discloses six new AI safety incidents,https://www.axios.com/2026/09/16/openai-testing-safety-incidents-disclosure
+AI-2026-0007,OpenAI,Unauthorized communication via temporary file hosting services,https://alignment.openai.com/misalignment-reports/unauthorized-communication-via-temporary-file-hosting-services/
+AI-2026-0007,Axios,OpenAI discloses six new AI safety incidents,https://www.axios.com/2026/09/16/openai-testing-safety-incidents-disclosure
+AI-2026-0008,UK AI Security Institute,Incident Report: unsanctioned agent behaviour during cyber testing,https://www.aisi.gov.uk/blog/incident-report-unsanctioned-agent-behaviour-during-cyber-testing
+AI-2026-0008,Anthropic,Improving our alignment and security efforts,https://www.anthropic.com/news/improving-alignment-security-efforts
+AI-2026-0009,Hugging Face,Security incident disclosure — July 2026,https://huggingface.co/blog/security-incident-july-2026
+AI-2026-0009,OpenAI,The Hugging Face incident and the road ahead,https://openai.com/index/hugging-face-incident-and-the-road-ahead/
+AI-2026-0009,METR / Redwood Research,"Brief independent investigation of agents’ behavior, reasoning and collaboration in the OpenAI / Hugging Face hacking incident",https://metr.org/blog/2026-08-26-openai-hugging-face-incident-investigation/
+AI-2025-0004,Nx,"S1ngularity — What Happened, How We Responded, What We Learned",https://nx.dev/blog/s1ngularity-postmortem
+AI-2025-0004,GitGuardian,The Nx s1ngularity Attack: Inside the Credential Leak,https://blog.gitguardian.com/the-nx-s1ngularity-attack-inside-the-credential-leak/
+AI-2026-0010,OpenAI,How we will do better for Australia,https://openai.com/index/how-we-will-do-better-for-australia/
+AI-2026-0010,Australian Government,"Press Conference, Sydney — OpenAI incident",https://www.minister.defence.gov.au/transcripts/2026-09-24/press-conference-sydney
+AI-2026-0010,ABC News Australia,"OpenAI hacked Medicare portal, Prime Minister Anthony Albanese says",https://www.abc.net.au/news/2026-09-24/ai-agent-accessed-australian-government-site-pm-says/107189078
+AI-2026-0011,OpenAI,How we will do better for Australia — October 4 NPWS update,https://openai.com/index/how-we-will-do-better-for-australia/
+AI-2026-0011,ABC News Australia,"Rogue OpenAI agent enters another NSW government website, tech giant says",https://www.abc.net.au/news/2026-10-02/rogue-open-ai-agent-breach-nsw-government-website/107223108
+AI-2026-0012,Transluce / Corridor / MIT / AIUC / Hertz Foundation,AI Agents Targeted U.S. and Canadian Government Websites,https://transluce.org/us-canada-gov
+AI-2026-0012,Associated Press,OpenAI says its models engaged with US government websites in new model misbehavior disclosure,https://apnews.com/article/openai-government-website-incident-df331b55daffc6d202d8e2f6d0afa264
+AI-2026-0012,Nextgov/FCW,"OpenAI agents accessed Census, SEC data and tried to hack Education website",https://www.nextgov.com/cybersecurity/2026/09/openai-says-its-advanced-models-may-have-gone-after-government-websites/416250/
+AI-2026-0013,Nextgov/FCW,"OpenAI agents accessed Census, SEC data and tried to hack Education website",https://www.nextgov.com/cybersecurity/2026/09/openai-says-its-advanced-models-may-have-gone-after-government-websites/416250/
+AI-2026-0013,Transluce / Corridor / MIT / AIUC / Hertz Foundation,AI Agents Targeted U.S. and Canadian Government Websites,https://transluce.org/us-canada-gov
+AI-2026-0006,Nextgov/FCW,"OpenAI agents accessed Census, SEC data and tried to hack Education website",https://www.nextgov.com/cybersecurity/2026/09/openai-says-its-advanced-models-may-have-gone-after-government-websites/416250/
+AI-2026-0006,Transluce / Corridor / MIT / AIUC / Hertz Foundation,AI Agents Targeted U.S. and Canadian Government Websites,https://transluce.org/us-canada-gov
