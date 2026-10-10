@@ -62,16 +62,16 @@
   .legend .both { background: var(--both-bg); color: var(--both-ink); border: 1px solid var(--both-bar); }
   .status { color: var(--muted); padding: 0 4px 12px; font-size: 12px; }
   .cal { margin-top: 16px; background: var(--card); border: 1px solid var(--line); border-radius: 18px;
-         padding: 16px 20px; box-shadow: 0 6px 24px #b5a99212; }
-  .cal-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+         padding: 12px 20px; box-shadow: 0 6px 24px #b5a99212; }
+  .cal-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
   .cal-top h2 { margin: 0; font-size: 14px; font-weight: 500; color: var(--fg); }
   .years { display: flex; gap: 6px; }
   .years button { border: 1px solid var(--line); background: var(--card); color: var(--muted); border-radius: 999px;
                   padding: 3px 12px; font: inherit; font-size: 12px; cursor: pointer; }
   .years button.active { background: #e6f0eb; border-color: #a8d5bf; color: #5d8a76; }
   .cal-scroll { overflow-x: auto; padding-bottom: 4px; }
-  .cal-grid { display: grid; grid-template-columns: 28px repeat(var(--weeks), minmax(10px, 1fr)); grid-template-rows: 16px;
-              gap: 3px; min-width: 720px; font-size: 10px; color: var(--muted); align-items: center; }
+  .cal-grid { display: grid; grid-template-columns: 28px repeat(var(--weeks), minmax(9px, 14px)); grid-template-rows: 14px;
+              gap: 3px; min-width: 640px; justify-content: center; font-size: 10px; color: var(--muted); align-items: center; }
   .cal-grid .m { grid-row: 1; white-space: nowrap; }
   .cal-grid .d { grid-column: 1; }
   .cal-grid .cell { width: 100%; height: auto; aspect-ratio: 1; }
@@ -79,7 +79,7 @@
   .cell.has { cursor: pointer; }
   .cell:hover { outline: 1px solid #5d8a76; }
   .cell.sel { outline: 2px solid #5d8a76; }
-  .cal-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 11px; color: var(--muted); flex-wrap: wrap; gap: 8px; }
+  .cal-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 11px; color: var(--muted); flex-wrap: wrap; gap: 8px; }
   .scale { display: flex; align-items: center; gap: 3px; }
   .tip { position: fixed; pointer-events: none; background: #5a564f; color: #fffdf9; font-size: 12px; padding: 5px 10px;
          border-radius: 8px; white-space: nowrap; transform: translate(-50%, -100%); opacity: 0; transition: opacity .1s; z-index: 10; }
