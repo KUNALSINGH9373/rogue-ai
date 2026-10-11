@@ -21,10 +21,11 @@
     --line: #ece6dc;
     --head: #f3eee5;
     --accent: #8fb3a8;      /* sage */
-    --m-openai: #1a9c8c; --m-anthropic: #d4663c; --m-both: #8a6fd1; --m-other: #b3aca2;   /* timeline markers (CVD-validated) */
+    --m-openai: #1a9c8c; --m-anthropic: #d4663c; --m-both: #8a6fd1; --m-chinese: #c9a227; --m-other: #b3aca2;   /* timeline markers (CVD-validated) */
     --openai-bg: #eef6f1;  --openai-bar: #a8d5bf;  --openai-ink: #5d8a76;
     --anthropic-bg: #fcf1ea; --anthropic-bar: #f2c4a8; --anthropic-ink: #b07a5c;
     --both-bg: #f4f0fa;    --both-bar: #cdbfe6;    --both-ink: #8473a8;
+    --chinese-bg: #fbf5df; --chinese-bar: #ecd58a; --chinese-ink: #8f7215;
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--fg);
@@ -64,6 +65,7 @@
   .legend .openai { background: var(--openai-bg); color: var(--openai-ink); border: 1px solid var(--openai-bar); }
   .legend .anthropic { background: var(--anthropic-bg); color: var(--anthropic-ink); border: 1px solid var(--anthropic-bar); }
   .legend .both { background: var(--both-bg); color: var(--both-ink); border: 1px solid var(--both-bar); }
+  .legend .chinese { background: var(--chinese-bg); color: var(--chinese-ink); border: 1px solid var(--chinese-bar); }
   .status { color: var(--muted); padding: 0 4px 12px; font-size: 12px; }
   .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
   .stat { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 18px; }
@@ -111,6 +113,8 @@
   tr.anthropic td:first-child { box-shadow: inset 4px 0 var(--anthropic-bar); }
   tr.both td { background: var(--both-bg); }
   tr.both td:first-child { box-shadow: inset 4px 0 var(--both-bar); }
+  tr.chinese td { background: var(--chinese-bg); }
+  tr.chinese td:first-child { box-shadow: inset 4px 0 var(--chinese-bar); }
   @media (max-width: 700px) {
     header { grid-template-columns: 1fr; justify-items: center; padding: 18px 16px 4px; gap: 6px; text-align: center; }
     header h1 { font-size: 24px; justify-self: center; }
@@ -133,7 +137,7 @@
     tr.filters select { padding: 8px 10px; font-size: 13px; border-radius: 999px; }
     tbody tr { margin-bottom: 12px; border: 1px solid var(--line); border-left-width: 4px; border-radius: 14px;
                padding: 10px 0; background: var(--card); overflow: hidden; }
-    tbody tr td, tr.openai td, tr.anthropic td, tr.both td { background: none; box-shadow: none !important; border: 0;
+    tbody tr td, tr.openai td, tr.anthropic td, tr.both td, tr.chinese td { background: none; box-shadow: none !important; border: 0;
                padding: 4px 14px; min-width: 0 !important; }
     tbody td:empty { display: none; }
     tbody td:not(:first-child)::before { content: attr(data-label); display: block; font-size: 10px; font-weight: 600;
@@ -142,6 +146,7 @@
     tr.openai { background: var(--openai-bg); border-left-color: var(--openai-bar); }
     tr.anthropic { background: var(--anthropic-bg); border-left-color: var(--anthropic-bar); }
     tr.both { background: var(--both-bg); border-left-color: var(--both-bar); }
+    tr.chinese { background: var(--chinese-bg); border-left-color: var(--chinese-bar); }
   }
 </style>
 </head>
@@ -157,6 +162,7 @@
       <span><i style="background:var(--m-openai)"></i>OpenAI</span>
       <span><i style="background:var(--m-anthropic)"></i>Anthropic</span>
       <span><i style="background:var(--m-both)"></i>Both</span>
+      <span><i style="background:var(--m-chinese);border-radius:1px;transform:rotate(45deg) scale(.85)"></i>Chinese models</span>
       <span><i style="background:var(--m-other)"></i>Other</span>
     </div>
     <div class="ranges" id="ranges">
@@ -174,6 +180,7 @@
     <button class="openai" data-company="OpenAI" title="Show only OpenAI incidents">OpenAI</button>
     <button class="anthropic" data-company="Anthropic" title="Show only Anthropic incidents">Anthropic</button>
     <button class="both" data-company="Both" title="Show only incidents involving both">Both</button>
+    <button class="chinese" data-company="Chinese models" title="Show only incidents involving Chinese models">Chinese models</button>
   </div>
 </div>
 <div class="status" id="status">Loading data from spreadsheet…</div>
@@ -195,7 +202,7 @@ const COLS = [
   { key: "Event title",       type: "text", long: true },
   { key: "Occurrence label",  type: "text", label: "Occurred" },
   { key: "Disclosed on",      type: "text", date: true },
-  { key: "Company",           type: "select", derive: companyGroup, plural: "companies" },
+  { key: "Company",           type: "select", derive: (v, r) => companyGroup(r), plural: "companies" },
   { key: "Model",             type: "text" },
   { key: "Category",          type: "select", plural: "categories" },
   { key: "Incident summary",  type: "text", long: true },
@@ -204,10 +211,15 @@ const COLS = [
   { key: "Sources",           type: "text", links: true },
 ];
 
-function companyGroup(c) {
-  const o = /openai/i.test(c), a = /anthropic/i.test(c);
+// Chinese developers and their model families, matched against Company + Model
+const CHINESE = /alibaba|qwen|bytedance|doubao|deepseek|moonshot|kimi|zhipu|\bglm\b|baidu|ernie|tencent|hunyuan|minimax|01\.ai|stepfun|iflytek|sensetime|baichuan/i;
+function companyGroup(r) {
+  const c = `${r.Company || ""} ${r.Model || ""}`;
+  if (CHINESE.test(c)) return "Chinese models";
+  const o = /openai/i.test(r.Company || ""), a = /anthropic/i.test(r.Company || "");
   return o && a ? "Both" : o ? "OpenAI" : a ? "Anthropic" : "Other";
 }
+const groupClass = r => companyGroup(r).split(" ")[0].toLowerCase();
 
 let data = [], sortKey = "Disclosed on", sortDir = -1;
 const filters = {};
@@ -286,15 +298,18 @@ function renderTimeline() {
 
   const tip = document.getElementById("tip");
   for (const m of inRange) {
-    const grp = companyGroup(m.r.Company || "").toLowerCase();
+    const grp = groupClass(m.r);
     const cy = base - m.lv * STEP;
     const g = add("g", { class: "dot", opacity: visibleIds.has(m.r["Incident ID"]) ? 1 : 0.18 });
-    add("circle", { cx: m.cx, cy, r: R, fill: `var(--m-${grp})`, stroke: "#fffdf9", "stroke-width": 2 }, g);
+    if (grp === "chinese")   // diamond: shape as well as colour, so this group never relies on colour alone
+      add("rect", { x: m.cx - R * 0.8, y: cy - R * 0.8, width: R * 1.6, height: R * 1.6, rx: 1, fill: `var(--m-${grp})`,
+                    stroke: "#fffdf9", "stroke-width": 2, transform: `rotate(45 ${m.cx} ${cy})` }, g);
+    else add("circle", { cx: m.cx, cy, r: R, fill: `var(--m-${grp})`, stroke: "#fffdf9", "stroke-width": 2 }, g);
     if (m.r["Incident ID"] === selId) add("circle", { cx: m.cx, cy, r: R + 3, fill: "none", stroke: "#5a564f", "stroke-width": 1.5 }, g);
     add("circle", { cx: m.cx, cy, r: R + 5, fill: "transparent" }, g);   // larger hit target
     g.onmouseenter = () => {
       const b = g.getBoundingClientRect();
-      tip.textContent = `${m.r["Event title"]} · ${fmtDate(m.d)} · ${companyGroup(m.r.Company || "")}`;
+      tip.textContent = `${m.r["Event title"]} · ${fmtDate(m.d)} · ${companyGroup(m.r)}`;
       tip.style.left = b.left + b.width / 2 + "px"; tip.style.top = b.top - 6 + "px"; tip.style.opacity = 1;
     };
     g.onmouseleave = () => { tip.style.opacity = 0; };
@@ -325,7 +340,7 @@ function render() {
       const f = filters[c.key];
       if (!f) return true;
       const v = r[c.key] || "";
-      if (c.type === "select") return (c.derive ? c.derive(v) : v) === f;
+      if (c.type === "select") return (c.derive ? c.derive(v, r) : v) === f;
       return v.toLowerCase().includes(f.toLowerCase());
     });
   });
@@ -342,7 +357,7 @@ function render() {
   tbody.innerHTML = "";
   for (const r of rows) {
     const tr = document.createElement("tr");
-    tr.className = companyGroup(r["Company"] || "").toLowerCase();
+    tr.className = groupClass(r);
     for (const c of COLS) {
       const td = document.createElement("td");
       if (c.links) {
@@ -387,7 +402,7 @@ function buildHeader() {
     // Only categorical columns get a filter; the search box covers free text.
     if (c.type === "select") {
       const el = document.createElement("select");
-      const opts = [...new Set(data.map(r => c.derive ? c.derive(r[c.key] || "") : r[c.key]).filter(Boolean))].sort();
+      const opts = [...new Set(data.map(r => c.derive ? c.derive(r[c.key] || "", r) : r[c.key]).filter(Boolean))].sort();
       el.innerHTML = `<option value="">All ${c.plural || "values"}</option>`;
       for (const o of opts) { const op = document.createElement("option"); op.value = op.textContent = o; el.appendChild(op); }
       el.dataset.key = c.key;
