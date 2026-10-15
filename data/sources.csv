@@ -91,3 +91,7 @@ AI-2026-0042,DIVD CSIRT,Overview of public statements on our hack,https://csirt.
 AI-2026-0042,The Register,"AI agents hacked the hackers, stealing email addresses from security research org",https://www.theregister.com/security/2026/10/01/ai-agents-hacked-the-hackers-stealing-email-addresses-from-security-research-org/5300652
 AI-2026-0042,Zammad,Security Advisory: CVE-2026-102489 and CVE-2026-102490,https://zammad.com/en/advisories/cve-2026-102489-cve-2026-102490
 AI-2026-0042,Zammad,Zammad 7.2.2: Critical Security Update,https://zammad.com/en/product/releases/7-2-2
+AI-2026-0043,Microsoft Threat Intelligence,Unmasking EvilTokens: Getting to the root of device code phishing,https://www.microsoft.com/en-us/security/blog/2026/09/22/unmasking-eviltokens-getting-to-the-root-of-device-code-phishing/
+AI-2026-0043,Microsoft Digital Crimes Unit,Disrupting EvilTokens: The AI Chatbot Built for Cybercrime,https://blogs.microsoft.com/on-the-issues/2026/09/22/disrupting-eviltokens-the-ai-chatbot-built-for-cybercrime/?trk=article-ssr-frontend-pulse_little-text-block
+AI-2026-0043,Cloudflare,Cloudflare participates in global operation to disrupt EvilTokens Phishing-as-a-Service,https://www.cloudflare.com/de-de/threat-intelligence/research/report/cloudflare-participates-in-global-operation-to-disrupt-eviltokens-phishing-as-a-service/
+AI-2026-0043,SpyCloud Labs,See No EvilTokens: Disrupting the EvilTokens PhaaS Platform,https://spycloud.com/blog/disrupting-the-eviltokens-phaas-platform/?trk=article-ssr-frontend-pulse_little-text-block
